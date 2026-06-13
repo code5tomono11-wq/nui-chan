@@ -1603,6 +1603,19 @@ JSON.parse(data);
 
 }
 
+const socket = io("https://nui-chan.onrender.com");
+
+socket.on("roomCreated",(room)=>{
+
+alert("部屋番号："+room);
+
+});
+
+function createRoom(){
+
+socket.emit("createRoom");
+
+}
 let roomCode="";
 let playerId="";
 
@@ -1683,7 +1696,27 @@ document.getElementById("roomInfo").innerText=
 "\n(コピーしました)";
 
 }
-</script>
 
+<button onclick="startBattle()">
+バトル開始
+</button>
+<hr>
+
+<h2>オンライン対戦</h2>
+
+<button onclick="createRoom()">
+部屋作成
+</button>
+
+<input id="roomCode" placeholder="部屋番号">
+
+<button onclick="joinRoom()">
+参加
+</button>
+
+<p id="roomInfo"></p>
+
+</script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </body>
 </html>
