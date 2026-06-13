@@ -133,9 +133,12 @@ h1{
 </div>
 <br>
 
-<button onclick="startBattle()">
-バトル開始
-</button>
+<hr>
+
+<h2>通信対戦</h2>
+
+<input id="playerNameInput"
+placeholder="名前">
 
 <br><br>
 
@@ -147,13 +150,7 @@ h1{
 部屋に入る
 </button>
 
-<div id="battle" style="display:none">
-
-<h2>バトル</h2>
-
-<h3 id="levelText">
-レベル 1
-</h3>
+<p id="roomInfo"></p>
 
 <h3 id="enemyName"></h3>
 
@@ -225,6 +222,11 @@ background:#111;
 
 </div>
 <script>
+
+const socket = io();
+
+let roomCode="";
+
 const characters = {
 
 chicken:{
@@ -1228,6 +1230,11 @@ damage += 5;
 
 enemy.hp-=damage;
 
+socket.emit("move",{
+room:roomCode,
+damage:damage
+});
+
 if(enemy.hp<0){
     enemy.hp=0;
 }
@@ -1619,6 +1626,63 @@ alert(roomCode+"に参加");
 
 }
 
+function createRoom(){
+
+roomCode=
+Math.floor(
+1000+Math.random()*9000
+).toString();
+
+socket.emit(
+"createRoom",
+roomCode
+);
+
+alert(
+"部屋番号："+roomCode
+);
+
+}
+
+function joinRoom(){
+
+let code=
+prompt("部屋コードを入力");
+
+if(!code) return;
+
+if(code.length!==4){
+
+alert("4桁で入力してください");
+return;
+
+}
+
+document.getElementById("roomInfo").innerText=
+"部屋 "+code+" に参加";
+
+}
+
+drawBattle();
+
+});
+
+let roomCode="";
+
+function createRoom(){
+
+roomCode=
+Math.floor(
+1000+Math.random()*9000
+);
+
+navigator.clipboard.writeText(roomCode);
+
+document.getElementById("roomInfo").innerText=
+"部屋コード : "+roomCode+
+"\n(コピーしました)";
+
+}
 </script>
 
 </body>
