@@ -6,18 +6,21 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static("public"));
+app.use(express.static(__dirname));
+
+app.get("/", (req,res)=>{
+    res.sendFile(__dirname + "/index.html");
+});
 
 let rooms = {};
 
 io.on("connection",(socket)=>{
 
-    socket.on("createRoom",(data)=>{
+    socket.on("createRoom",()=>{
 
         let room =
-        Math.floor(
-        1000+Math.random()*9000
-        ).toString();
+        Math.floor(1000 + Math.random()*9000)
+        .toString();
 
         rooms[room]=[];
 
@@ -26,18 +29,15 @@ io.on("connection",(socket)=>{
         rooms[room].push(socket.id);
 
         socket.emit("roomCreated",room);
-
     });
 
     socket.on("joinRoom",(room)=>{
 
         if(!rooms[room]){
-
             socket.emit(
-            "errorMessage",
-            "部屋がありません"
+                "errorMessage",
+                "部屋がありません"
             );
-
             return;
         }
 
@@ -45,18 +45,11 @@ io.on("connection",(socket)=>{
 
         rooms[room].push(socket.id);
 
-        io.to(room).emit(
-        "playerJoined"
-        );
-
+        io.to(room).emit("playerJoined");
     });
 
 });
 
-server.listen(3000,()=>{
-
-    console.log(
-    "server start"
-    );
-
+server.listen(process.env.PORT || 3000,()=>{
+    console.log("server start");
 });
