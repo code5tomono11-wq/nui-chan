@@ -152,6 +152,28 @@ placeholder="名前">
 
 <p id="roomInfo"></p>
 
+<p id="roomInfo"></p>
+
+<hr>
+
+<h2>モード選択</h2>
+
+<button onclick="startCpuMode()">
+CPU対戦
+</button>
+
+<button onclick="startLocalMode()">
+ローカル2人対戦
+</button>
+
+<button onclick="showOnlineMode()">
+オンライン対戦
+</button>
+
+<p id="modeText">
+CPU対戦モード
+</p>
+
 <h3 id="enemyName"></h3>
 
 <div style="width:300px;border:2px solid white;margin:auto">
@@ -1574,6 +1596,63 @@ function reviveTo(index){
     addLog(player.name+"登場！");
 
     document.getElementById("switchMenu").innerHTML="";
+
+}
+
+function createRoom(){
+
+    roomCode =
+    Math.floor(
+    1000 + Math.random()*9000
+    ).toString();
+
+    document.getElementById("roomInfo").innerText =
+    "部屋番号 : " + roomCode;
+
+}
+
+function joinRoom(){
+
+    let code =
+    prompt("部屋番号を入力");
+
+    if(!code){
+        return;
+    }
+
+    roomCode = code;
+
+    document.getElementById("roomInfo").innerText =
+    "参加中 : " + roomCode;
+
+}
+
+let gameMode = "cpu";
+
+function startCpuMode(){
+
+    gameMode = "cpu";
+
+    document.getElementById("modeText").innerText =
+    "CPU対戦モード";
+
+}
+
+function startLocalMode(){
+
+    gameMode = "local";
+
+    document.getElementById("modeText").innerText =
+    "ローカル2人対戦モード";
+
+}
+
+function showOnlineMode(){
+
+    gameMode = "online";
+
+    document.getElementById("modeText").innerText =
+    "オンライン対戦モード";
 
 }
 
