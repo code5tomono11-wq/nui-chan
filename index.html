@@ -152,8 +152,6 @@ placeholder="名前">
 
 <p id="roomInfo"></p>
 
-<p id="roomInfo"></p>
-
 <hr>
 
 <h2>モード選択</h2>
@@ -173,6 +171,12 @@ CPU対戦
 <p id="modeText">
 CPU対戦モード
 </p>
+
+<button onclick="startBattle()">
+バトル開始
+</button>
+
+<br><br>
 
 <h3 id="enemyName"></h3>
 
@@ -417,6 +421,7 @@ buhuko:0
 
 let levels={
 chicken:1,
+
 kuu:1,
 pomu:1,
 suika:1,
@@ -425,8 +430,27 @@ buhuko:1
 };
 
 
+
+
 function startBattle(){
 
+    if(gameMode==="local"){
+
+        alert("ローカル2人対戦モード");
+        return;
+
+    }
+
+    if(gameMode==="online"){
+
+        alert("オンライン対戦モード");
+        return;
+
+    }
+
+    alert("CPU対戦開始");
+
+}
 
 if(team.length!==3){
 
