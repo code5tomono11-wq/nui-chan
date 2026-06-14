@@ -710,8 +710,6 @@ while(exp[currentChar]>=levels[currentChar]*10){
     exp[currentChar]-=levels[currentChar]*10;
     levels[currentChar]++;
 
-    saveGame();
-
     player.maxHp+=10;
     player.hp+=10;
     player.atk+=3;
@@ -1685,6 +1683,34 @@ function showOnlineMode(){
     document.getElementById("modeText").innerText =
     "オンライン対戦モード";
 
+}
+
+function saveGame(){
+
+    localStorage.setItem(
+        "nui_levels",
+        JSON.stringify(levels)
+    );
+
+    localStorage.setItem(
+        "nui_exp",
+        JSON.stringify(exp)
+    );
+
+}
+
+let savedLevels =
+localStorage.getItem("nui_levels");
+
+if(savedLevels){
+    levels = JSON.parse(savedLevels);
+}
+
+let savedExp =
+localStorage.getItem("nui_exp");
+
+if(savedExp){
+    exp = JSON.parse(savedExp);
 }
 
 </script>
