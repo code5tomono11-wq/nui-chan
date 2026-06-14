@@ -1566,14 +1566,21 @@ document.getElementById("switchMenu").innerHTML=html;
 
 function reviveTo(index){
 
-currentIndex=index;
+    currentIndex=index;
 
-player=teamData[currentIndex];
+    player=teamData[currentIndex];
 
-drawBattle();
+    drawBattle();
+
+    addLog(player.name+"登場！");
+
+    document.getElementById("switchMenu").innerHTML="";
+
+}
+
+</script>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-</script>
 </body>
 </html>
