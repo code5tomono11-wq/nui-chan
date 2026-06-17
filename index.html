@@ -467,12 +467,36 @@ function startBattle(){
 
     }
 
-    if(gameMode==="online"){
+if(gameMode==="online"){
 
-        alert("オンライン対戦モード");
-        return;
+    document.getElementById("battle").style.display="block";
 
-    }
+    currentIndex=0;
+    teamData=[];
+
+    team.forEach(c=>{
+
+        let p=
+        JSON.parse(JSON.stringify(characters[c]));
+
+        p.maxHp=p.hp;
+
+        teamData.push(p);
+
+    });
+
+    player=teamData[0];
+
+    enemy={
+        name:"対戦相手",
+        hp:300,
+        maxHp:300,
+        img:"images/chicken.png"
+    };
+
+    drawBattle();
+    return;
+}
 
     if(team.length!==3){
 
@@ -683,7 +707,9 @@ skipTurn=false;
 
 addLog("くうちゃんは休んでいる！");
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 
 return;
 }
@@ -703,7 +729,9 @@ return;
 
 }
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 
 }
 
@@ -852,7 +880,10 @@ return;
 
 }
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
 return;
 
 }
@@ -865,7 +896,10 @@ addLog("コケコッコー！3ターン強化！");
 
 drawBattle();
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
 return;
 
 }
@@ -873,6 +907,11 @@ return;
 else if(player.name==="くうちゃん"){
 
 enemy.hp-=70;
+
+socket.emit("move",{
+    room:roomCode,
+    damage:70
+});
 
 skipTurn=true;
 
@@ -927,7 +966,9 @@ if(enemy.hp<=0){
 
 }
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 
 } // ← specialMove終了
 
@@ -938,7 +979,9 @@ addLog("はやうち！");
 
 drawBattle();
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 }
 
 function healMove(){
@@ -953,7 +996,9 @@ addLog(
 
 drawBattle();
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 }
 function enemyTurn(){
 
@@ -1335,8 +1380,9 @@ return;
 
 }
 
-enemyTurn();
-
+if(gameMode!=="online"){
+    enemyTurn();
+}
 }
 
 
@@ -1380,6 +1426,11 @@ damage += 10;
 }
 
 enemy.hp-=damage;
+
+socket.emit("move",{
+    room:roomCode,
+    damage:damage
+});
 
 if(enemy.hp<0){
     enemy.hp=0;
@@ -1425,7 +1476,9 @@ return;
 
 }
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 
 }
 function useMove3(){
@@ -1461,7 +1514,9 @@ addLog(
 
 }
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 
 }
 
@@ -1603,7 +1658,9 @@ tutorial.switch=true;
 
 document.getElementById("switchMenu").innerHTML="";
 
-enemyTurn();
+if(gameMode!=="online"){
+    enemyTurn();
+}
 
 }
 
@@ -1722,6 +1779,20 @@ socket.on("enemyMove",(data)=>{
     drawBattle();
 
 });
+
+function saveGame(){
+
+    localStorage.setItem(
+        "nui_levels",
+        JSON.stringify(levels)
+    );
+
+    localStorage.setItem(
+        "nui_exp",
+        JSON.stringify(exp)
+    );
+
+}
 
 let savedLevels =
 localStorage.getItem("nui_levels");
