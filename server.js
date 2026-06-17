@@ -5,42 +5,32 @@ const io = require("socket.io")(http);
 
 app.use(express.static("public"));
 
-const rooms = {};
+http.listen(process.env.PORT || 3000);
 
-io.on("connection", socket => {
+io.on("connection",(socket)=>{
 
-    socket.on("createRoom", room => {
+    console.log("接続");
+
+    socket.on("createRoom",(room)=>{
 
         socket.join(room);
-
-        rooms[room] = [];
-
-        rooms[room].push(socket.id);
 
     });
 
-    socket.on("joinRoom", room => {
+    socket.on("joinRoom",(room)=>{
 
         socket.join(room);
-
-        if(!rooms[room]){
-            rooms[room] = [];
-        }
-
-        rooms[room].push(socket.id);
 
         io.to(room).emit("battleStart");
 
     });
 
-    socket.on("move", data => {
+    socket.on("move",(data)=>{
 
-        socket.to(data.room).emit("enemyMove", data);
+        socket.to(data.room).emit("enemyMove",{
+            damage:data.damage
+        });
 
     });
 
-});
-
-http.listen(3000, () => {
-    console.log("server start");
 });
