@@ -1,17 +1,46 @@
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
-app.use(express.static(__dirname));
+app.use(express.static("public"));
 
-app.get("/", (req,res)=>{
-    res.sendFile(__dirname + "/index.html");
+const rooms = {};
+
+io.on("connection", socket => {
+
+    socket.on("createRoom", room => {
+
+        socket.join(room);
+
+        rooms[room] = [];
+
+        rooms[room].push(socket.id);
+
+    });
+
+    socket.on("joinRoom", room => {
+
+        socket.join(room);
+
+        if(!rooms[room]){
+            rooms[room] = [];
+        }
+
+        rooms[room].push(socket.id);
+
+        io.to(room).emit("battleStart");
+
+    });
+
+    socket.on("move", data => {
+
+        socket.to(data.room).emit("enemyMove", data);
+
+    });
+
 });
 
-server.listen(process.env.PORT || 3000,()=>{
+http.listen(3000, () => {
     console.log("server start");
 });
