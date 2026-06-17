@@ -2,16 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<<head>
+<meta charset="UTF-8">
 <title>ぬいぐるみチャンピオンズ</title>
 
 <style>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-const socket = io();
-</script>
-
-
 
 body{
     background:#222;
@@ -1668,8 +1663,6 @@ function joinRoom(){
 
     socket.emit("joinRoom",roomCode);
 
-    socket.emit("joinRoom",roomCode);
-
     document.getElementById("roomInfo").innerText =
     "参加中 : " + roomCode;
 
@@ -1710,26 +1703,6 @@ socket.on("battleStart",()=>{
 
 });
 
-function saveGame(){
-
-    localStorage.setItem(
-        "nui_levels",
-        JSON.stringify(levels)
-    );
-
-    localStorage.setItem(
-        "nui_exp",
-        JSON.stringify(exp)
-    );
-
-socket.on("battleStart",()=>{
-
-    alert("対戦相手が接続しました");
-
-    startBattle();
-
-});
-
 socket.on("enemyMove",(data)=>{
 
     player.hp -= data.damage;
@@ -1744,7 +1717,6 @@ socket.on("enemyMove",(data)=>{
     drawBattle();
 
 });
-
 }
 
 let savedLevels =
@@ -1799,10 +1771,6 @@ socket.on("enemyMove",(data)=>{
 </script>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-<script>
-
-const socket = io();
 
 </script>
 
