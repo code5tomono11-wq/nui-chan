@@ -588,7 +588,7 @@ document.getElementById("enemyName").style.color=
 }
 
 document.getElementById("levelText").innerText=
-"レベル "+level;
+"レベル "+levels[team[currentIndex]];
 
 }
 
@@ -631,11 +631,10 @@ document.getElementById("playerHpBar").style.background=
 
 else{
 
-document.getElementById("enemyHpBar").style.background=
+document.getElementById("playerHpBar").style.background=
 "red";
 
 }
-
 updateMoves();
 
 if(firstBattle){
@@ -710,6 +709,8 @@ while(exp[currentChar]>=levels[currentChar]*10){
     exp[currentChar]-=levels[currentChar]*10;
     levels[currentChar]++;
 
+    saveGame();
+
     player.maxHp+=10;
     player.hp+=10;
     player.atk+=3;
@@ -731,6 +732,9 @@ enemyIndex++;
 if(enemyIndex>=enemyTeam.length){
 
     alert("勝利！！");
+
+   saveGame();
+
     return;
 
 }
@@ -765,11 +769,10 @@ if(player.name==="ポム子"){
 
 let oldHp=player.hp;
 
-player=
-JSON.parse(
-JSON.stringify(
-characters.pomu_hat
-));
+player.maxHp=130;
+player.hp=Math.min(oldHp+30,130);
+player.atk=28;
+player.speed=25;
 
 player.maxHp=130;
 player.hp=Math.min(oldHp+30, player.maxHp);
