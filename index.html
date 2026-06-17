@@ -253,6 +253,13 @@ background:#111;
 </div>
 
 </div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io();
+</script>
+
 <script>
 
 let gameMode = "cpu";
@@ -1737,37 +1744,6 @@ socket.on("enemyMove",(data)=>{
     if(player.hp < 0){
         player.hp = 0;
     }
-
-    drawBattle();
-
-});
-
-</script>
-
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-<script>
-
-const socket = io();
-
-socket.on("battleStart",()=>{
-
-    alert("対戦相手が接続しました");
-
-    startBattle();
-
-});
-
-socket.on("enemyMove",(data)=>{
-
-    player.hp -= data.damage;
-
-    if(player.hp < 0){
-        player.hp = 0;
-    }
-
-    addLog("相手の攻撃！");
-    addLog(data.damage + "ダメージ");
 
     drawBattle();
 
