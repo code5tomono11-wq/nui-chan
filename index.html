@@ -6,6 +6,13 @@
 
 <style>
 
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+</script>
+
+
+
 body{
     background:#222;
     color:white;
@@ -256,6 +263,8 @@ background:#111;
 <script>
 
 let gameMode = "cpu";
+
+const socket = io();
 
 let roomCode="";
 
@@ -1288,6 +1297,7 @@ damage += 5;
 enemy.hp-=damage;
 
 
+
 if(enemy.hp<0){
     enemy.hp=0;
 }
@@ -1640,6 +1650,8 @@ function createRoom(){
     1000 + Math.random()*9000
     ).toString();
 
+    socket.emit("createRoom",roomCode);
+
     document.getElementById("roomInfo").innerText =
     "部屋番号 : " + roomCode;
 
@@ -1650,17 +1662,19 @@ function joinRoom(){
     let code =
     prompt("部屋番号を入力");
 
-    if(!code){
-        return;
-    }
+    if(!code) return;
 
     roomCode = code;
+
+    socket.emit("joinRoom",roomCode);
+
+    socket.emit("joinRoom",roomCode);
 
     document.getElementById("roomInfo").innerText =
     "参加中 : " + roomCode;
 
 }
-	
+
 function startCpuMode(){
 
     gameMode = "cpu";
@@ -1688,6 +1702,14 @@ function showOnlineMode(){
 
 }
 
+socket.on("battleStart",()=>{
+
+    alert("対戦相手が接続しました");
+
+    startBattle();
+
+});
+
 function saveGame(){
 
     localStorage.setItem(
@@ -1699,6 +1721,29 @@ function saveGame(){
         "nui_exp",
         JSON.stringify(exp)
     );
+
+socket.on("battleStart",()=>{
+
+    alert("対戦相手が接続しました");
+
+    startBattle();
+
+});
+
+socket.on("enemyMove",(data)=>{
+
+    player.hp -= data.damage;
+
+    if(player.hp < 0){
+        player.hp = 0;
+    }
+
+    addLog("相手の攻撃！");
+    addLog(data.damage+"ダメージ");
+
+    drawBattle();
+
+});
 
 }
 
@@ -1716,9 +1761,50 @@ if(savedExp){
     exp = JSON.parse(savedExp);
 }
 
+socket.on("enemyMove",(data)=>{
+
+    player.hp -= data.damage;
+
+    if(player.hp < 0){
+        player.hp = 0;
+    }
+
+    drawBattle();
+
+});
+
+socket.on("battleStart",()=>{
+
+    alert("対戦相手が接続しました");
+
+    startBattle();
+
+});
+
+socket.on("enemyMove",(data)=>{
+
+    player.hp -= data.damage;
+
+    if(player.hp < 0){
+        player.hp = 0;
+    }
+
+    addLog("相手の攻撃！");
+    addLog(data.damage+"ダメージ");
+
+    drawBattle();
+
+});
+
 </script>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+
+const socket = io();
+
+</script>
 
 </body>
 </html>
