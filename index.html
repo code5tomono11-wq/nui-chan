@@ -283,7 +283,8 @@ kuu:{
 name:"くうちゃん",
 type:"けもの",
 img:"images/kuu.png",
-info:"おもりキック超高火力",
+info:"水陸両用",
+ability:"水陸両用",
 hp:90,
 atk:30,
 speed:15,
@@ -427,6 +428,9 @@ let level=1;
 let firstBattle = true;
 
 let enemyAtkDownTurns=0;
+
+let zone = "";
+let zoneTurns = 0;
 
 let tutorial = {
 battle:false,
@@ -968,16 +972,11 @@ addLog("相手の命中率と素早さが下がった！");
 
 else if(player.name==="ブーフコ"){
 
-enemyAtkDownTurns = 3;
+    zone="砂漠";
+    zoneTurns=3;
 
-addLog("ブッブーブー！");
-addLog("相手の攻撃が弱まった！");
-}
-if(enemy.hp<=0){
-
-    nextEnemy();
-    return;
-
+    addLog("ブッブーブー！");
+    addLog("ゾーン『砂漠』になった！");
 }
 
 if(gameMode!=="online"){
@@ -1015,6 +1014,22 @@ if(gameMode!=="online"){
 }
 }
 function enemyTurn(){
+
+if(zone==="浅い海"){
+
+    player.hp-=5;
+
+    addLog("窒息ダメージ 5!");
+
+}
+
+if(zone==="砂漠"){
+
+    player.hp-=10;
+
+    addLog("砂嵐ダメージ 10!");
+
+}
 
      if(gameMode==="online"){
         return;
@@ -1097,6 +1112,15 @@ nextEnemy();
 return;
 
 }
+
+if(zoneTurns>0){
+
+    zoneTurns--;
+
+    if(zoneTurns<=0){
+
+        addLog(zone+" の効果が消えた！");
+        zone="";
 
 }
 
@@ -1311,6 +1335,17 @@ if(player.hp <= 0){
 
 let damage=20;
 
+if(zone==="浅い海" && player.name==="くうちゃん"){
+    damage=Math.floor(damage*1.5);
+}
+
+if(zone==="砂漠" &&
+(player.name==="ブーフコ" ||
+ player.name==="将来有望なケンタッキーのチキン")){
+
+    damage=Math.floor(damage*1.25);
+}
+
 let critical=false;
 
 if(Math.random()<0.2){
@@ -1413,6 +1448,17 @@ if(player.hp <= 0){
 
 let damage=35;
 
+if(zone==="浅い海" && player.name==="くうちゃん"){
+    damage=Math.floor(damage*1.5);
+}
+
+if(zone==="砂漠" &&
+(player.name==="ブーフコ" ||
+ player.name==="将来有望なケンタッキーのチキン")){
+
+    damage=Math.floor(damage*1.25);
+}
+
 let critical=false;
 
 if(Math.random()<0.2){
@@ -1512,6 +1558,35 @@ specialMove();
 
 function useMove4(){
 
+if(player.name==="くうちゃん"){
+
+    zone="浅い海";
+    zoneTurns=3;
+
+    enemy.hp-=60;
+
+    if(enemy.hp<0){
+        enemy.hp=0;
+    }
+
+    addLog("野生復帰！");
+    addLog("ゾーン『浅い海』になった！");
+    addLog("60ダメージ！");
+
+    drawBattle();
+
+    if(enemy.hp<=0){
+        nextEnemy();
+        return;
+    }
+
+    if(gameMode!=="online"){
+        enemyTurn();
+    }
+
+    return;
+}
+
 if(player.hp <= 0){
     showReviveMenu();
     return;
@@ -1584,7 +1659,7 @@ else if(player.name==="くうちゃん"){
 move1.innerText="キック";
 move2.innerText="ダッシュキック";
 move3.innerText="おもりキック";
-move4.innerText="まもる";
+move4.innerText="野生復帰";
 
 }
 
