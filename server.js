@@ -28,10 +28,10 @@ io.on("connection",(socket)=>{
 
     });
 
-}); // ← これを追加
+    socket.on("win",(room)=>{
 
-socket.on("win",(room)=>{
+        socket.to(room).emit("lose");
 
-    socket.to(room).emit("lose");
+    });
 
 });
