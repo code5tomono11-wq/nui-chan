@@ -1781,6 +1781,12 @@ function showOnlineMode(){
 socket.on("battleStart",()=>{
 
     alert("対戦相手が接続しました");
+
+    socket.emit("teamData",{
+        room:roomCode,
+        team:team
+    });
+
     startBattle();
 
 });
@@ -1835,7 +1841,7 @@ function saveGame(){
         "nui_levels",
         JSON.stringify(levels)
     );
-
+	
     localStorage.setItem(
         "nui_exp",
         JSON.stringify(exp)
