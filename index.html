@@ -469,6 +469,8 @@ function startBattle(){
 
 if(gameMode==="online"){
 
+     console.log("オンライン開始");
+
     document.getElementById("battle").style.display="block";
 
     currentIndex=0;
@@ -487,13 +489,13 @@ if(gameMode==="online"){
 
     player=teamData[0];
     
-    console.log("チーム送信",team);
+console.log("チーム送信",team);
 
-
-    socket.emit("selectTeam",{
+socket.emit("selectTeam",{
     room:roomCode,
     team:team
-     });
+
+});
 
     enemy={
         name:"対戦相手",
