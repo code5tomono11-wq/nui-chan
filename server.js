@@ -27,7 +27,16 @@ io.on("connection",(socket)=>{
         });
 
     });
+    
+    socket.on("selectTeam",(data)=>{
 
+    socket.to(data.room).emit(
+        "enemyTeam",
+        data.team
+    );
+
+});
+    
     socket.on("win",(room)=>{
 
         socket.to(room).emit("lose");
@@ -35,3 +44,5 @@ io.on("connection",(socket)=>{
     });
 
 });
+
+
