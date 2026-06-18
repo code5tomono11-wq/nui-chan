@@ -20,10 +20,12 @@ io.on("connection",(socket)=>{
         io.to(room).emit("battleStart");
     });
 
-socket.on("move",(data)=>{
+    socket.on("move",(data)=>{
 
-    socket.to(data.room).emit("enemyMove",{
-        damage:data.damage
+        socket.to(data.room).emit("enemyMove",{
+            damage:data.damage
+        });
+
     });
 
-});
+}); // ← これを追加
