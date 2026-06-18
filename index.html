@@ -1767,19 +1767,14 @@ socket.on("battleStart",()=>{
 
 socket.on("enemyMove",(data)=>{
 
+    console.log(player);
+    console.log(data);
+
     player.hp -= data.damage;
-
-    if(player.hp < 0){
-        player.hp = 0;
-    }
-
-    addLog("相手の攻撃！");
-    addLog(data.damage+"ダメージ");
 
     drawBattle();
 
 });
-
 function saveGame(){
 
     localStorage.setItem(
@@ -1807,18 +1802,6 @@ localStorage.getItem("nui_exp");
 if(savedExp){
     exp = JSON.parse(savedExp);
 }
-
-socket.on("enemyMove",(data)=>{
-
-    player.hp -= data.damage;
-
-    if(player.hp < 0){
-        player.hp = 0;
-    }
-
-    drawBattle();
-
-});
 
 </script>
 </body>
