@@ -972,13 +972,15 @@ addLog("相手の命中率と素早さが下がった！");
 
 else if(player.name==="ブーフコ"){
 
+    enemyAtkDownTurns = 3;
+
     zone="砂漠";
     zoneTurns=3;
 
     addLog("ブッブーブー！");
+    addLog("相手の攻撃が弱まった！");
     addLog("ゾーン『砂漠』になった！");
 }
-
 if(gameMode!=="online"){
     enemyTurn();
 }
