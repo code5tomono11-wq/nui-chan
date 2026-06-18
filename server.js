@@ -1,3 +1,13 @@
+socket.on("selectTeam",(data)=>{
+
+    console.log("チーム受信",data);
+
+    socket.to(data.room).emit(
+        "enemyTeam",
+        data.team
+    );
+
+});
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
@@ -28,16 +38,17 @@ io.on("connection",(socket)=>{
 
     });
 
-    socket.on("selectTeam",(data)=>{
+socket.on("selectTeam",(data)=>{
 
-        console.log("チーム受信",data);
+    console.log("selectTeam受信");
+    console.log(data);
 
-        socket.to(data.room).emit(
-            "enemyTeam",
-            data.team
-        );
+    socket.to(data.room).emit(
+        "enemyTeam",
+        data.team
+    );
 
-    });
+});
 
     socket.on("win",(room)=>{
 
