@@ -1,4 +1,4 @@
-press = require("express");
+const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
@@ -28,17 +28,17 @@ io.on("connection",(socket)=>{
 
     });
 
-socket.on("selectTeam",(data)=>{
+    socket.on("selectTeam",(data)=>{
 
-    console.log("selectTeam受信");
-    console.log(data);
+        console.log("selectTeam受信");
+        console.log(data);
 
-    socket.to(data.room).emit(
-        "enemyTeam",
-        data.team
-    );
+        socket.to(data.room).emit(
+            "enemyTeam",
+            data.team
+        );
 
-});
+    });
 
     socket.on("win",(room)=>{
 
