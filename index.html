@@ -487,6 +487,11 @@ if(gameMode==="online"){
 
     player=teamData[0];
 
+    socket.emit("selectTeam",{
+    room:roomCode,
+    team:team
+     });
+
     enemy={
         name:"対戦相手",
         hp:300,
@@ -1791,6 +1796,23 @@ socket.on("enemyMove",(data)=>{
         alert("負け！");
 
     }
+
+});
+
+socket.on("enemyTeam",(enemyTeamData)=>{
+
+    enemy =
+    JSON.parse(
+        JSON.stringify(
+            characters[
+                enemyTeamData[0]
+            ]
+        )
+    );
+
+    enemy.maxHp = enemy.hp;
+
+    drawBattle();
 
 });
 
