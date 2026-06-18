@@ -28,6 +28,12 @@ io.on("connection",(socket)=>{
 
     });
     
+    socket.on("teamData",(data)=>{
+
+    socket.to(data.room).emit("enemyTeam",data);
+
+});
+    
 socket.on("selectTeam",(data)=>{
 
     console.log("チーム受信",data);
