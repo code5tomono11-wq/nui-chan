@@ -1,58 +1,1862 @@
-const express = require("express");
-const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ぬいぐるみチャンピオンズ</title>
 
-app.use(express.static("."));
+<style>
 
-http.listen(process.env.PORT || 3000);
+body{
+    background:#222;
+    color:white;
+    text-align:center;
+    font-family:sans-serif;
+}
 
-io.on("connection",(socket)=>{
+h1{
+    font-size:48px;
+}
 
-    console.log("接続");
+#bigCard{
+    border:4px solid white;
+    width:500px;
+    margin:auto;
+    padding:20px;
+    background:#333;
+}
 
-    socket.on("createRoom",(room)=>{
-        socket.join(room);
+#bigCard img{
+    width:250px;
+    image-rendering:pixelated;
+}
+
+#characterList{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-top:30px;
+}
+
+.charButton{
+    background:#444;
+    border:3px solid white;
+    color:white;
+    padding:10px;
+    cursor:pointer;
+}
+
+.charButton img{
+    width:100px;
+    image-rendering:pixelated;
+}
+
+.charButton:hover{
+    background:#666;
+}
+
+#team{
+    margin-top:30px;
+    font-size:24px;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>ぬいぐるみチャンピオンズ</h1>
+
+<div id="bigCard">
+
+<img id="bigImage" src="images/pomu.png">
+
+<h2 id="charName">ポム子</h2>
+
+<p id="charInfo">
+進化できるバランス型
+</p>
+
+</div>
+
+<div id="characterList">
+
+<div class="charButton" onclick="selectChar('chicken')">
+<img src="images/chicken.png">
+<br>
+チキン
+</div>
+
+<div class="charButton" onclick="selectChar('kuu')">
+<img src="images/kuu.png">
+<br>
+くうちゃん
+</div>
+
+<div class="charButton" onclick="selectChar('pomu')">
+<img src="images/pomu.png">
+<br>
+ポム子
+</div>
+
+<div class="charButton" onclick="selectChar('suika')">
+<img src="images/suika.png">
+<br>
+スイカゼリー
+</div>
+
+<div class="charButton" onclick="selectChar('mikan')">
+<img src="images/mikan.png">
+<br>
+セクシーみかん
+</div>
+
+<div class="charButton" onclick="selectChar('buhuko')">
+<img src="images/buhuko.png">
+<br>
+ブーフコ
+</div>
+
+</div>
+
+<br>
+
+<button onclick="addToTeam()">
+チームに追加
+</button>
+
+<div id="team">
+
+選択チーム
+
+<ul id="teamList"></ul>
+
+</div>
+<br>
+
+<hr>
+
+<h2>通信対戦</h2>
+
+<input id="playerNameInput"
+placeholder="名前">
+
+<br><br>
+
+<button onclick="createRoom()">
+部屋を作る
+</button>
+
+<button onclick="joinRoom()">
+部屋に入る
+</button>
+
+<p id="roomInfo"></p>
+
+<hr>
+
+<h2>モード選択</h2>
+
+<button onclick="startCpuMode()">
+CPU対戦
+</button>
+
+<button onclick="startLocalMode()">
+ローカル2人対戦
+</button>
+
+<button onclick="showOnlineMode()">
+オンライン対戦
+</button>
+
+<p id="modeText">
+CPU対戦モード
+</p>
+
+<p id="levelText">
+レベル 1
+</p>
+
+<button onclick="startBattle()">
+バトル開始
+</button>
+
+<br><br>
+
+<div id="battle" style="display:none;">
+
+<h3 id="enemyName"></h3>
+
+<div style="width:300px;border:2px solid white;margin:auto">
+<div id="enemyHpBar"
+style="height:20px;background:red;width:100%">
+</div>
+</div>
+
+<p id="enemyHp"></p>
+
+<img id="enemyImg" width="180">
+
+<hr>
+
+<img id="playerImg" width="180">
+
+<h3 id="playerName"></h3>
+
+<div style="width:300px;border:2px solid white;margin:auto">
+<div id="playerHpBar"
+style="height:20px;background:lime;width:100%">
+</div>
+</div>
+
+<p id="playerHp"></p>
+
+<br>
+
+<div id="moves">
+
+<button onclick="useMove1()" id="move1">
+技1
+</button>
+
+<button onclick="useMove2()" id="move2">
+技2
+</button>
+
+<button onclick="useMove3()" id="move3">
+技3
+</button>
+
+<button onclick="useMove4()" id="move4">
+技4
+</button>
+
+</div>
+<br><br>
+
+<button onclick="showSwitchMenu()">
+交代
+</button>
+
+<div id="switchMenu"></div>
+
+<div id="log"
+style="
+width:500px;
+height:150px;
+overflow-y:auto;
+border:2px solid white;
+margin:auto;
+padding:10px;
+text-align:left;
+background:#111;
+">
+</div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io();
+</script>
+
+<script>
+
+let gameMode = "cpu";
+
+let roomCode="";
+
+const characters = {
+
+chicken:{
+name:"将来有望なケンタッキーのチキン",
+type:"とり",
+img:"images/chicken.png",
+info:"コケコッコーで3ターン強化",
+hp:95,
+atk:22,
+speed:18,
+accuracy:100
+},
+
+kuu:{
+name:"くうちゃん",
+type:"けもの",
+img:"images/kuu.png",
+info:"おもりキック超高火力",
+hp:90,
+atk:30,
+speed:15,
+accuracy:100
+},
+
+pomu:{
+name:"ポム子",
+type:"まほう",
+img:"images/pomu.png",
+info:"へんしんぼうしで進化",
+hp:100,
+atk:18,
+speed:22,
+accuracy:100
+},
+
+suika:{
+name:"スイカゼリー",
+type:"みず",
+img:"images/suika.png",
+info:"殻の雨・殻盾を使う",
+hp:120,
+atk:15,
+speed:10,
+accuracy:100
+},
+
+mikan:{
+name:"セクシーみかん",
+type:"フルーツ",
+img:"images/mikan.png",
+info:"セクシーダンス",
+hp:95,
+atk:20,
+speed:30,
+accuracy:100
+}
+
+,
+buhuko:{
+name:"ブーフコ",
+type:"けもの",
+img:"images/buhuko.png",
+info:"ブッブーブー",
+hp:150,
+atk:20,
+speed:8,
+accuracy:100
+},
+
+pomu_hat:{
+name:"ポム子（帽子あり）",
+type:"まほう",
+img:"images/pomu.png",
+info:"進化後",
+hp:130,
+atk:28,
+speed:25,
+accuracy:100
+},
+
+};
+let current="pomu";
+let team=[];
+
+function selectChar(id){
+
+current=id;
+
+document.getElementById("bigImage").src=
+characters[id].img;
+
+document.getElementById("charName").innerText=
+characters[id].name;
+
+document.getElementById("charInfo").innerText=
+characters[id].info;
+}
+
+function addToTeam(){
+
+if(team.length>=3){
+
+alert("3体選んでいます");
+
+return;
+}
+
+team.push(current);
+
+drawTeam();
+}
+
+function drawTeam(){
+
+let html="";
+
+team.forEach(c=>{
+
+html+=
+`<li>${characters[c].name}
+ Lv.${levels[c]}</li>`;
+
+});
+
+document.getElementById("teamList").innerHTML=
+html;
+
+}
+let player;
+
+let enemy;
+
+let skipTurn=false;
+
+let currentIndex=0;
+
+let shieldTurns=0;
+
+let enemyTeam=[];
+
+let enemyIndex=0;
+
+let teamData=[];
+
+let poisonTurns=0;
+
+let buffTurns=0;
+
+let burnTurns=0;
+
+let sleepTurns=0;
+
+let enemyBuffTurns=0;
+
+let playerPoisonTurns=0;
+
+let level=1;
+
+let firstBattle = true;
+
+let enemyAtkDownTurns=0;
+
+let tutorial = {
+battle:false,
+level:false,
+evolve:false,
+switch:false,
+poison:false
+};
+
+let exp={
+chicken:0,
+kuu:0,
+pomu:0,
+suika:0,
+mikan:0,
+buhuko:0
+};
+
+let levels={
+chicken:1,
+
+kuu:1,
+pomu:1,
+suika:1,
+mikan:1,
+buhuko:1
+};
+
+
+
+
+function startBattle(){
+
+    if(gameMode==="local"){
+
+        alert("ローカル2人対戦モード");
+        return;
+
+    }
+
+if(gameMode==="online"){
+
+    document.getElementById("battle").style.display="block";
+
+    currentIndex=0;
+    teamData=[];
+
+    team.forEach(c=>{
+
+        let p=
+        JSON.parse(JSON.stringify(characters[c]));
+
+        p.maxHp=p.hp;
+
+        teamData.push(p);
+
     });
 
-    socket.on("joinRoom",(room)=>{
-        socket.join(room);
-        io.to(room).emit("battleStart");
-    });
-
-    socket.on("move",(data)=>{
-
-        socket.to(data.room).emit("enemyMove",{
-            damage:data.damage
-        });
-
-    });
+    player=teamData[0];
     
-    socket.on("selectTeam",(data)=>{
+    console.log("チーム送信",team);
 
-    socket.to(data.room).emit(
-        "enemyTeam",
-        data.team
+socket.emit("selectTeam",{
+    room:roomCode,
+    team:team
+});
+
+    socket.emit("selectTeam",{
+    room:roomCode,
+    team:team
+     });
+
+    enemy={
+        name:"対戦相手",
+        hp:300,
+        maxHp:300,
+        img:"images/chicken.png"
+    };
+
+    drawBattle();
+    return;
+}
+
+    if(team.length!==3){
+
+        alert("3体選んでください");
+        return;
+
+    }
+
+    document.getElementById("battle").style.display="block";
+
+    currentIndex=0;
+    teamData=[];
+
+    team.forEach(c=>{
+
+        let p=
+        JSON.parse(
+        JSON.stringify(
+        characters[c]
+        ));
+
+        let lv=levels[c];
+
+        p.hp+=(lv-1)*10;
+        p.atk+=(lv-1)*3;
+
+        p.maxHp=p.hp;
+
+        teamData.push(p);
+
+    });
+
+    player=teamData[0];
+
+    enemyTeam=[
+    "chicken",
+    "kuu",
+    "suika",
+    "mikan",
+    "buhuko"
+    ];
+
+    enemyIndex=0;
+
+    enemy=
+    JSON.parse(
+    JSON.stringify(
+    characters[
+    enemyTeam[enemyIndex]
+    ]
+    ));
+
+    enemy.maxHp=enemy.hp;
+
+    drawBattle();
+
+}
+function addLog(text){
+
+document.getElementById("log").innerHTML=
+text+"<br>"+
+document.getElementById("log").innerHTML;
+
+}
+
+function drawBattle(){
+
+let playerDisplayName=player.name;
+
+if(playerPoisonTurns>0){
+
+playerDisplayName+=" ☠";
+
+}
+
+document.getElementById("playerName").innerText=
+playerDisplayName;
+
+if(poisonTurns>0){
+
+let enemyDisplayName=enemy.name;
+
+if(enemyBuffTurns>0){
+
+enemyDisplayName+=" 🔥";
+
+}
+
+if(poisonTurns>0){
+
+enemyDisplayName+=" ☠";
+
+}
+
+document.getElementById("enemyName").innerText=
+enemyDisplayName;
+}
+else{
+
+document.getElementById("enemyName").innerText=
+enemy.name;
+
+if(poisonTurns>0){
+
+document.getElementById("enemyName").innerText=
+enemy.name+" ☠";
+
+document.getElementById("enemyName").style.color=
+"violet";
+
+}
+else{
+
+document.getElementById("enemyName").innerText=
+enemy.name;
+
+document.getElementById("enemyName").style.color=
+"white";
+
+}
+
+document.getElementById("levelText").innerText=
+"レベル "+levels[team[currentIndex]];
+
+}
+
+document.getElementById("playerImg").src=
+player.img;
+
+document.getElementById("enemyImg").src=
+enemy.img;
+
+document.getElementById("playerHp").innerText=
+player.hp+" / "+player.maxHp;
+
+document.getElementById("enemyHp").innerText=
+enemy.hp+" / "+enemy.maxHp;
+
+document.getElementById("playerHpBar").style.width=
+(player.hp/player.maxHp*100)+"%";
+
+document.getElementById("enemyHpBar").style.width=
+(enemy.hp/enemy.maxHp*100)+"%";
+
+document.getElementById("enemyHpBar").style.width=
+(enemy.hp/enemy.maxHp*100)+"%";
+
+let playerPercent=
+player.hp/player.maxHp*100;
+
+if(playerPercent>50){
+
+document.getElementById("playerHpBar").style.background=
+"lime";
+
+}
+else if(playerPercent>20){
+
+document.getElementById("playerHpBar").style.background=
+"yellow";
+
+}
+
+else{
+
+document.getElementById("playerHpBar").style.background=
+"red";
+
+}
+updateMoves();
+
+if(firstBattle){
+
+alert(
+"ぬいぐるみチャンピオンズへようこそ！\n\n"+
+"技1: 通常攻撃\n"+
+"技2: 強力攻撃\n"+
+"技3: 必殺技\n"+
+"技4: 防御\n\n"+
+"敵を倒してレベルアップしよう！"
+);
+
+firstBattle = false;
+
+}
+
+if(!tutorial.battle){
+
+addLog("=== チュートリアル ===");
+addLog("技1: 通常攻撃");
+addLog("技2: 強力攻撃");
+addLog("技3: 必殺技");
+addLog("技4: 防御");
+addLog("交代ボタンで仲間を交代できる");
+addLog("敵を倒してレベルアップしよう！");
+
+tutorial.battle=true;
+}
+
+}
+
+
+function attack(){
+
+if(skipTurn){
+
+skipTurn=false;
+
+addLog("くうちゃんは休んでいる！");
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+return;
+}
+
+enemy.hp -= player.atk;
+
+if(enemy.hp<0)
+enemy.hp=0;
+
+addLog(player.name+"の攻撃！");drawBattle();
+
+if(enemy.hp<=0){
+
+    socket.emit("win",roomCode);
+
+    alert("勝ち！");
+
+nextEnemy();
+
+return;
+
+}
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+}
+
+function nextEnemy(){
+
+let currentChar=team[currentIndex];
+
+while(exp[currentChar]>=levels[currentChar]*10){
+
+    exp[currentChar]-=levels[currentChar]*10;
+    levels[currentChar]++;
+
+    saveGame();
+
+    player.maxHp+=10;
+    player.hp+=10;
+    player.atk+=3;
+
+    addLog(
+        characters[currentChar].name+
+        "はレベル"+
+        levels[currentChar]+
+        "になった！"
+    );
+}
+
+exp[currentChar]+=10;
+
+addLog("経験値+10！");
+
+enemyIndex++;
+
+if(enemyIndex>=enemyTeam.length){
+
+    alert("勝利！！");
+
+   saveGame();
+
+    return;
+
+}
+
+if(!tutorial.level){
+
+addLog("=== レベルアップ ===");
+addLog("HPと攻撃力が上がる！");
+tutorial.level=true;
+
+}
+
+enemy=
+JSON.parse(
+JSON.stringify(
+characters[
+enemyTeam[enemyIndex]
+]
+));
+
+enemy.maxHp=enemy.hp;
+
+addLog(enemy.name+"登場！");
+
+drawBattle();
+
+}
+
+function specialMove(){
+
+if(player.name==="ポム子"){
+
+let oldHp=player.hp;
+
+player.maxHp=130;
+player.hp=Math.min(oldHp+30,130);
+player.atk=28;
+player.speed=25;
+
+player.maxHp=130;
+player.hp=Math.min(oldHp+30, player.maxHp);
+player.atk=28;
+
+addLog("ポム子は進化した！");
+
+if(!tutorial.evolve){
+
+addLog("=== 進化説明 ===");
+addLog("ポム子だけ進化できる！");
+addLog("進化後は能力と技が変化する！");
+
+tutorial.evolve=true;
+
+}
+
+updateMoves();
+drawBattle();
+
+return;
+
+}
+
+else if(player.name==="ポム子（帽子あり）"){
+
+let damage=80;
+
+let critical=false;
+
+if(Math.random()<0.25){
+
+damage*=2;
+critical=true;
+
+}
+
+if(Math.random()<0.3){
+
+burnTurns=3;
+addLog("相手はやけどした！");
+
+}
+
+enemy.hp-=damage;
+
+if(enemy.hp<0){
+    enemy.hp=0;
+}
+
+if(enemy.hp<0)
+enemy.hp=0;
+
+addLog("ぼうしミサイル発射！");
+
+if(critical){
+
+addLog("クリティカル！");
+
+}
+
+addLog(damage+"ダメージ！");
+
+drawBattle();
+
+if(enemy.hp<=0){
+
+nextEnemy();
+return;
+
+}
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+return;
+
+}
+
+else if(player.name==="将来有望なケンタッキーのチキン"){
+
+buffTurns=3;
+
+addLog("コケコッコー！3ターン強化！");
+
+drawBattle();
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+return;
+
+}
+
+else if(player.name==="くうちゃん"){
+
+enemy.hp-=70;
+
+socket.emit("move",{
+    room:roomCode,
+    damage:70
+});
+
+skipTurn=true;
+
+addLog("おもりキック！次のターン休み！");
+
+}
+
+else if(player.name==="スイカゼリー"){
+
+player.hp+=30;
+
+if(player.hp>player.maxHp)
+player.hp=player.maxHp;
+
+enemy.hp-=20;
+
+poisonTurns=3;
+
+addLog("殻の雨！相手は毒になった！");
+
+}
+
+else if(player.name==="セクシーみかん"){
+
+enemy.accuracy -= 20;
+
+if(enemy.accuracy < 50){
+    enemy.accuracy = 50;
+}
+
+enemy.speed -= 10;
+
+if(enemy.speed < 1){
+    enemy.speed = 1;
+}
+
+addLog("セクシーダンス！");
+addLog("相手の命中率と素早さが下がった！");
+}
+
+else if(player.name==="ブーフコ"){
+
+enemyAtkDownTurns = 3;
+
+addLog("ブッブーブー！");
+addLog("相手の攻撃が弱まった！");
+}
+if(enemy.hp<=0){
+
+    nextEnemy();
+    return;
+
+}
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+} // ← specialMove終了
+
+function quickAttack(){
+enemy.hp-=10;
+
+addLog("はやうち！");
+
+drawBattle();
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+}
+
+function healMove(){
+
+player.hp+=20;
+
+if(player.hp>player.maxHp)
+player.hp=player.maxHp;
+
+addLog(
+"回復した！");
+
+drawBattle();
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+}
+function enemyTurn(){
+
+     if(gameMode==="online"){
+        return;
+    }
+
+if(enemy.speed > player.speed){
+
+    if(Math.random() < 0.3){
+
+        addLog("敵が素早く先制した！");
+
+        let damage = enemy.atk;
+
+        player.hp -= damage;
+
+        if(player.hp < 0){
+            player.hp = 0;
+        }
+
+        drawBattle();
+
+        if(player.hp <= 0){
+
+            showReviveMenu();
+            return;
+        }
+    }
+}
+
+if(player.hp <= 0){
+
+    let alive = false;
+
+    for(let i=0;i<teamData.length;i++){
+
+        if(teamData[i].hp > 0){
+            alive = true;
+        }
+
+    }
+
+    if(alive){
+
+        showReviveMenu();
+    }
+    else{
+
+        alert("敗北...");
+    }
+
+    return;
+}
+
+if(sleepTurns>0){
+
+sleepTurns--;
+
+addLog("敵は眠っている！");
+
+return;
+
+}
+
+if(burnTurns>0){
+
+enemy.hp-=8;
+
+if(enemy.hp<0){
+    enemy.hp=0;
+}
+
+burnTurns--;
+
+addLog("やけどダメージ！");
+
+if(enemy.hp<=0){
+
+nextEnemy();
+
+return;
+
+}
+
+}
+
+if(playerPoisonTurns>0){
+
+player.hp-=5;
+
+playerPoisonTurns--;
+
+if(player.hp<0)
+player.hp=0;
+
+addLog("自分は毒ダメージを受けた！");
+
+drawBattle();
+
+if(player.hp<=0){
+
+let alive=0;
+
+for(let i=0;i<teamData.length;i++){
+
+if(teamData[i].hp>0){
+alive++;
+}
+
+}
+
+if(alive<=0){
+
+alert("敗北...");
+return;
+
+}
+
+showReviveMenu();
+return;
+
+}
+
+}
+
+let damage=enemy.atk;
+
+if(Math.random()*100 > enemy.accuracy){
+
+addLog(enemy.name+"の攻撃は外れた！");
+return;
+
+}
+
+if(enemyAtkDownTurns > 0){
+
+damage = Math.floor(damage * 0.8);
+
+enemyAtkDownTurns--;
+
+}
+
+if(enemyBuffTurns>0){
+
+damage*=2;
+
+enemyBuffTurns--;
+
+}
+
+let move=Math.floor(Math.random()*5);
+
+if(poisonTurns>0){
+
+enemy.hp-=5;
+
+if(enemy.hp<0){
+    enemy.hp=0;
+}
+
+poisonTurns--;
+
+addLog("毒ダメージ！");
+
+drawBattle();
+
+if(enemy.hp<=0){
+
+nextEnemy();
+
+return;
+
+}
+
+}
+
+if(enemy.name==="将来有望なケンタッキーのチキン" && move===0){
+
+enemyBuffTurns=3;
+
+addLog(
+"敵チキンのコケコッコー！");
+
+drawBattle();
+
+return;
+
+}
+if(enemy.name==="くうちゃん" && move===0){
+
+player.hp-=70;
+
+if(player.hp<0)
+player.hp=0;
+
+addLog(
+"敵くうちゃんのおもりキック！");
+
+drawBattle();
+
+return;
+
+}
+
+if(enemy.name==="スイカゼリー" && move===0){
+
+shieldTurns=2;
+
+addLog(
+"敵スイカの殻盾！");
+
+drawBattle();
+
+return;
+
+}
+
+if(enemy.name==="スイカゼリー" && move===1){
+
+playerPoisonTurns=3;
+
+if(!tutorial.poison){
+
+addLog("=== 状態異常 ===");
+addLog("毒になると毎ターンダメージ！");
+tutorial.poison=true;
+
+}
+
+addLog(
+"敵スイカの殻の雨！");
+
+drawBattle();
+
+return;
+
+}
+
+
+if(shieldTurns>0){
+
+damage=Math.floor(damage/2);
+
+shieldTurns--;
+
+}
+
+player.hp-=damage;
+
+if(player.hp<0)
+player.hp=0;
+
+addLog(
+enemy.name+"の攻撃！");
+
+drawBattle();
+
+if(player.hp<=0){
+
+    let alive = 0;
+
+    for(let i=0;i<teamData.length;i++){
+
+        if(teamData[i].hp>0){
+            alive++;
+        }
+
+    }
+
+    if(alive<=0){
+
+        alert("敗北...");
+        return;
+
+    }
+
+    showReviveMenu();
+    return;
+
+}
+
+}
+
+function switchCharacter(){
+
+showSwitchMenu();
+
+}
+function useMove1(){
+
+if(player.hp <= 0){
+    showReviveMenu();
+    return;
+}
+
+let damage=20;
+
+let critical=false;
+
+if(Math.random()<0.2){
+
+damage*=2;
+
+critical=true;
+
+}
+
+if(buffTurns>0){
+
+damage*=2;
+
+buffTurns--;
+
+}
+
+let bonus=
+getTypeBonus(player,enemy);
+
+damage=
+Math.floor(damage*bonus);
+
+if(bonus>1){
+
+addLog(
+"こうかはばつぐんだ！");
+
+}
+
+else if(bonus<1){
+
+addLog(
+"こうかはいまひとつだ...");
+
+}
+
+if(player.speed > enemy.speed){
+
+damage += 5;
+
+}
+
+enemy.hp-=damage;
+
+socket.emit("move",{
+    room:roomCode,
+    damage:damage
+});
+
+if(enemy.hp<0){
+    enemy.hp=0;
+}
+
+let text="";
+
+if(bonus>1){
+
+text+="こうかはばつぐんだ！\n";
+
+}
+else if(bonus<1){
+
+text+="こうかはいまひとつだ...\n";
+
+}
+
+if(critical){
+
+text+="クリティカル！\n";
+
+}
+
+text+=damage+"ダメージ！";
+
+document.getElementById("log").innerText=text;
+
+drawBattle();
+
+if(enemy.hp<=0){
+
+nextEnemy();
+return;
+
+}
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+}
+
+
+function useMove2(){
+
+if(player.hp <= 0){
+    showReviveMenu();
+    return;
+}
+
+let damage=35;
+
+let critical=false;
+
+if(Math.random()<0.2){
+
+damage*=2;
+
+critical=true;
+
+}
+
+if(buffTurns>0){
+
+damage*=2;
+
+buffTurns--;
+
+}
+
+let bonus=
+getTypeBonus(player,enemy);
+
+damage=
+Math.floor(damage*bonus);
+
+if(player.speed > enemy.speed){
+
+damage += 10;
+
+}
+
+enemy.hp-=damage;
+
+socket.emit("move",{
+    room:roomCode,
+    damage:damage
+});
+
+if(enemy.hp<0){
+    enemy.hp=0;
+}
+
+if(Math.random()<0.3){
+
+burnTurns=3;
+
+addLog("やけどにした！");
+}
+
+let text="";
+
+if(bonus>1){
+
+text+="こうかはばつぐんだ！ ";
+
+}
+else if(bonus<1){
+
+text+="こうかはいまひとつだ... ";
+
+}
+
+if(critical){
+
+text+="クリティカル！ ";
+
+}
+
+text+=damage+"ダメージ！";
+
+addLog(text);
+
+drawBattle();
+
+if(enemy.hp<=0){
+
+nextEnemy();
+
+return;
+
+}
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+}
+function useMove3(){
+
+if(player.hp <= 0){
+    showReviveMenu();
+    return;
+}
+
+specialMove();
+
+}
+
+function useMove4(){
+
+if(player.hp <= 0){
+    showReviveMenu();
+    return;
+}
+
+if(player.name==="スイカゼリー"){
+
+shieldTurns=3;
+
+addLog(
+"スイカの殻盾！");
+
+}
+else{
+
+addLog(
+"まもる！");
+
+}
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+}
+
+function getTypeBonus(attacker, defender){
+
+if(attacker.type==="とり" && defender.type==="けもの")
+return 1.5;
+
+if(attacker.type==="けもの" && defender.type==="まほう")
+return 1.5;
+
+if(attacker.type==="まほう" && defender.type==="みず")
+return 1.5;
+
+if(attacker.type==="みず" && defender.type==="とり")
+return 1.5;
+
+if(defender.type==="とり" && attacker.type==="けもの")
+return 0.7;
+
+if(defender.type==="けもの" && attacker.type==="まほう")
+return 0.7;
+
+if(defender.type==="まほう" && attacker.type==="みず")
+return 0.7;
+
+if(defender.type==="みず" && attacker.type==="とり")
+return 0.7;
+
+return 1;
+
+}
+
+function updateMoves(){
+
+if(player.name==="将来有望なケンタッキーのチキン"){
+
+move1.innerText="つつく";
+move2.innerText="はばたく";
+move3.innerText="コケコッコー";
+move4.innerText="まもる";
+
+}
+
+else if(player.name==="くうちゃん"){
+
+move1.innerText="キック";
+move2.innerText="ダッシュキック";
+move3.innerText="おもりキック";
+move4.innerText="まもる";
+
+}
+
+else if(player.name==="ポム子"){
+
+move1.innerText="たいあたり";
+move2.innerText="ジャンプ";
+move3.innerText="へんしんぼうし";
+move4.innerText="まもる";
+
+}
+
+else if(player.name==="ポム子（帽子あり）"){
+
+move1.innerText="ミサイル";
+move2.innerText="ダブルミサイル";
+move3.innerText="ぼうしミサイル";
+move4.innerText="まもる";
+
+}
+
+else if(player.name==="スイカゼリー"){
+
+move1.innerText="ゼリーアタック";
+move2.innerText="ぷるぷる";
+move3.innerText="殻の雨";
+move4.innerText="殻盾";
+
+}
+
+else if(player.name==="セクシーみかん"){
+
+move1.innerText="みかんパンチ";
+move2.innerText="みかんキック";
+move3.innerText="セクシーダンス";
+move4.innerText="まもる";
+
+}
+
+else if(player.name==="ブーフコ"){
+
+move1.innerText="たいあたり";
+move2.innerText="ぶひアタック";
+move3.innerText="ブッブーブー";
+move4.innerText="まもる";
+
+}
+
+}
+
+function showSwitchMenu(){
+
+let html="<h3>交代するキャラを選んでください</h3>";
+
+for(let i=0;i<teamData.length;i++){
+
+if(teamData[i].hp<=0) continue;
+
+html+=`
+<button onclick="switchTo(${i})">
+${teamData[i].name}
+HP:${teamData[i].hp}
+</button><br><br>
+`;
+
+}
+
+document.getElementById("switchMenu").innerHTML=html;
+
+}
+
+function switchTo(index){
+
+currentIndex=index;
+
+player=teamData[currentIndex];
+
+drawBattle();
+
+addLog(player.name+"に交代した！");
+
+if(!tutorial.switch){
+
+addLog("=== 交代説明 ===");
+addLog("危なくなったら交代しよう！");
+tutorial.switch=true;
+
+}
+
+document.getElementById("switchMenu").innerHTML="";
+
+if(gameMode!=="online"){
+    enemyTurn();
+}
+
+}
+
+function showReviveMenu(){
+
+let html="<h3>次に出すキャラを選んでください</h3>";
+
+for(let i=0;i<teamData.length;i++){
+
+if(i===currentIndex) continue;
+
+if(teamData[i].hp<=0) continue;
+
+html+=`
+<button onclick="reviveTo(${i})">
+${teamData[i].name}
+HP:${teamData[i].hp}
+</button><br><br>
+`;
+
+}
+
+document.getElementById("switchMenu").innerHTML=html;
+
+}
+
+function reviveTo(index){
+
+    currentIndex=index;
+
+    player=teamData[currentIndex];
+
+    drawBattle();
+
+    addLog(player.name+"登場！");
+
+    document.getElementById("switchMenu").innerHTML="";
+
+}
+
+function createRoom(){
+
+    roomCode =
+    Math.floor(
+    1000 + Math.random()*9000
+    ).toString();
+
+    socket.emit("createRoom",roomCode);
+
+    document.getElementById("roomInfo").innerText =
+    "部屋番号 : " + roomCode;
+
+}
+
+function joinRoom(){
+
+    let code =
+    prompt("部屋番号を入力");
+
+    if(!code) return;
+
+    roomCode = code;
+
+    socket.emit("joinRoom",roomCode);
+
+    document.getElementById("roomInfo").innerText =
+    "参加中 : " + roomCode;
+
+}
+
+function startCpuMode(){
+
+    gameMode = "cpu";
+
+    document.getElementById("modeText").innerText =
+    "CPU対戦モード";
+
+}
+
+function startLocalMode(){
+
+    gameMode = "local";
+
+    document.getElementById("modeText").innerText =
+    "ローカル2人対戦モード";
+
+}
+
+function showOnlineMode(){
+
+    gameMode = "online";
+
+    document.getElementById("modeText").innerText =
+    "オンライン対戦モード";
+
+}
+
+socket.on("battleStart",()=>{
+
+    alert("対戦相手が接続しました");
+    startBattle();
+
+});
+
+socket.on("enemyMove",(data)=>{
+
+    player.hp -= data.damage;
+
+    if(player.hp < 0){
+        player.hp = 0;
+    }
+
+    addLog("相手の攻撃！");
+    addLog(data.damage + "ダメージ");
+
+    drawBattle();
+
+    if(player.hp <= 0){
+
+        alert("負け！");
+
+    }
+
+});
+
+socket.on("enemyTeam",(enemyTeamData)=>{
+
+    enemy =
+    JSON.parse(
+        JSON.stringify(
+            characters[
+                enemyTeamData[0]
+            ]
+        )
     );
 
-});
-    
-    socket.on("win",(room)=>{
+    enemy.maxHp = enemy.hp;
 
-        socket.to(room).emit("lose");
-
-    });
+    drawBattle();
 
 });
 
+socket.on("lose",()=>{
 
-socket.on("selectTeam",(data)=>{
+    alert("負け！");
 
-    console.log("チーム受信", data);
+});
 
-    socket.to(data.room).emit(
-        "enemyTeam",
-        data.team
+function saveGame(){
+
+    localStorage.setItem(
+        "nui_levels",
+        JSON.stringify(levels)
     );
 
-});
+    localStorage.setItem(
+        "nui_exp",
+        JSON.stringify(exp)
+    );
+
+}
+
+let savedLevels =
+localStorage.getItem("nui_levels");
+
+if(savedLevels){
+    levels = JSON.parse(savedLevels);
+}
+
+let savedExp =
+localStorage.getItem("nui_exp");
+
+if(savedExp){
+    exp = JSON.parse(savedExp);
+}
+
+</script>
+</body>
+</html>
