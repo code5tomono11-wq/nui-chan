@@ -489,10 +489,6 @@ if(gameMode==="online"){
     
     console.log("チーム送信",team);
 
-socket.emit("selectTeam",{
-    room:roomCode,
-    team:team
-});
 
     socket.emit("selectTeam",{
     room:roomCode,
