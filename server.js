@@ -1,14 +1,4 @@
-socket.on("selectTeam",(data)=>{
-
-    console.log("チーム受信",data);
-
-    socket.to(data.room).emit(
-        "enemyTeam",
-        data.team
-    );
-
-});
-const express = require("express");
+press = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
