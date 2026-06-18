@@ -1810,18 +1810,7 @@ socket.on("enemyMove",(data)=>{
 
 socket.on("enemyTeam",(enemyTeamData)=>{
 
-    enemy =
-    JSON.parse(
-        JSON.stringify(
-            characters[
-                enemyTeamData[0]
-            ]
-        )
-    );
-
-    enemy.maxHp = enemy.hp;
-
-    drawBattle();
+    console.log(enemyTeamData);
 
 });
 
