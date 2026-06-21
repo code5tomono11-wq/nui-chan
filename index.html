@@ -32,18 +32,17 @@ h1{
 
 #characterList{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(4, 220px);
     gap:20px;
-    width:900px;
-    margin:auto;
+    justify-content:center;
+    margin-top:30px;
 }
 
-.charButton{
-    background:#444;
-    border:3px solid white;
-    color:white;
-    padding:10px;
-    cursor:pointer;
+.charButton img{
+    width:80px;
+    height:80px;
+    object-fit:contain;
+    image-rendering:pixelated;
 }
 
 .charButton img{
