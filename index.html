@@ -282,7 +282,7 @@ info:"コケコッコーで3ターン強化",
 hp:95,
 atk:22,
 speed:18,
-accuracy:100
+accuracy:100,
  ability:"砂漠育ち"
 },
 
@@ -306,7 +306,7 @@ info:"へんしんぼうしで進化",
 hp:100,
 atk:18,
 speed:22,
-accuracy:100
+accuracy:100,
  ability:"ふわふわ"
 },
 
@@ -318,7 +318,7 @@ info:"殻の雨・殻盾を使う",
 hp:120,
 atk:15,
 speed:10,
-accuracy:100
+accuracy:100,
  ability:"水っぽい"
 },
 
@@ -342,7 +342,7 @@ info:"ブッブーブー",
 hp:150,
 atk:20,
 speed:8,
-accuracy:100
+accuracy:100,
  ability:"里帰り"
 },
 
@@ -455,8 +455,6 @@ let appleArrowTurns=0;
 let zone = "";
 let zoneTurns = 0;
 
-let appleArrowTurns=0;
-
 let tutorial = {
 battle:false,
 level:false,
@@ -471,7 +469,7 @@ kuu:0,
 pomu:0,
 suika:0,
 mikan:0,
-buhuko:0
+buhuko:0,
 ringopan:0
 };
 
@@ -482,7 +480,7 @@ kuu:1,
 pomu:1,
 suika:1,
 mikan:1,
-buhuko:1
+buhuko:1,
 ringopan:1
 };
 
@@ -857,7 +855,7 @@ drawBattle();
 
 function specialMove(){
 
-else if(player.name==="リンゴパン"){
+if(player.name==="リンゴパン"){
 
     enemy.hp-=40;
 
@@ -1839,17 +1837,6 @@ else if(player.name==="リンゴパン"){
 
 }
 
-ringopan:{
-    name:"リンゴパン",
-    type:"フルーツ",
-    img:"images/ringopan.png",
-    info:"つまみ食いで回復",
-    ability:"つまみ食い",
-    hp:105,
-    atk:20,
-    speed:18,
-    accuracy:100
-},
 
 }
 
