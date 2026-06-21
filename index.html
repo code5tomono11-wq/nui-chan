@@ -277,6 +277,7 @@ hp:95,
 atk:22,
 speed:18,
 accuracy:100
+ ability:"砂漠育ち"
 },
 
 kuu:{
@@ -300,6 +301,7 @@ hp:100,
 atk:18,
 speed:22,
 accuracy:100
+ ability:"ふわふわ"
 },
 
 suika:{
@@ -311,6 +313,7 @@ hp:120,
 atk:15,
 speed:10,
 accuracy:100
+ ability:"水っぽい"
 },
 
 mikan:{
@@ -334,6 +337,7 @@ hp:150,
 atk:20,
 speed:8,
 accuracy:100
+ ability:"里帰り"
 },
 
 pomu_hat:{
@@ -345,6 +349,18 @@ hp:130,
 atk:28,
 speed:25,
 accuracy:100
+},
+
+ringopan:{
+    name:"リンゴパン",
+    type:"フルーツ",
+    img:"images/ringopan.png",
+    info:"つまみ食いで回復",
+    ability:"つまみ食い",
+    hp:105,
+    atk:20,
+    speed:18,
+    accuracy:100
 },
 
 };
@@ -429,8 +445,12 @@ let firstBattle = true;
 
 let enemyAtkDownTurns=0;
 
+let appleArrowTurns=0;
+
 let zone = "";
 let zoneTurns = 0;
+
+let appleArrowTurns=0;
 
 let tutorial = {
 battle:false,
@@ -493,6 +513,18 @@ if(gameMode==="online"){
 
     player=teamData[0];
     
+if(player.name==="スイカゼリー"){
+
+    zone="雨";
+    zoneTurns=3;
+
+    enemy.speed-=5;
+
+    addLog("水っぽい！");
+    addLog("雨が降り始めた！");
+
+}
+
 console.log("チーム送信",team);
 
 socket.emit("selectTeam",{
@@ -818,6 +850,17 @@ drawBattle();
 
 function specialMove(){
 
+else if(player.name==="リンゴパン"){
+
+    enemy.hp-=40;
+
+    appleArrowTurns=3;
+
+    addLog("アポーアロー！");
+    addLog("40ダメージ！");
+
+}
+
 if(player.name==="ポム子"){
 
 let oldHp=player.hp;
@@ -974,13 +1017,12 @@ else if(player.name==="ブーフコ"){
 
     enemyAtkDownTurns = 3;
 
-    zone="砂漠";
+    zone="草原";
     zoneTurns=3;
 
-    addLog("ブッブーブー！");
-    addLog("相手の攻撃が弱まった！");
-    addLog("ゾーン『砂漠』になった！");
+    addLog("草原になった！");
 }
+
 if(gameMode!=="online"){
     enemyTurn();
 }
@@ -1017,11 +1059,40 @@ if(gameMode!=="online"){
 }
 function enemyTurn(){
 
+if(appleArrowTurns>0){
+
+    enemy.hp-=8;
+
+    appleArrowTurns--;
+
+    addLog("アポーアローの追加ダメージ！");
+
+}
+
+if(player.ability==="つまみ食い"){
+
+    player.hp+=7;
+
+    if(player.hp>player.maxHp){
+        player.hp=player.maxHp;
+    }
+
+    addLog("つまみ食いで7回復！");
+}
+
 if(zone==="浅い海"){
 
     player.hp-=5;
 
     addLog("窒息ダメージ 5!");
+
+}
+
+if(zone==="草原"){
+
+    player.hp-=3;
+
+    addLog("虫に食われた！ 3ダメージ");
 
 }
 
@@ -1170,6 +1241,18 @@ return;
 }
 
 let damage=enemy.atk;
+
+if(
+player.name==="ポム子" &&
+Math.random()<0.2
+){
+
+    damage=
+    Math.floor(damage*0.75);
+
+    addLog("ふわふわ発動！");
+
+}
 
 if(Math.random()*100 > enemy.accuracy){
 
@@ -1341,15 +1424,28 @@ if(player.hp <= 0){
 
 let damage=20;
 
-if(zone==="浅い海" && player.name==="くうちゃん"){
-    damage=Math.floor(damage*1.5);
+if(
+player.ability==="里帰り" &&
+zone==="草原"
+){
+
+    damage=
+    Math.floor(damage*1.1);
+
 }
 
-if(zone==="砂漠" &&
-(player.name==="ブーフコ" ||
- player.name==="将来有望なケンタッキーのチキン")){
+if(zone==="浅い海" && player.name==="くうちゃん"){
+    damage=Math.floor(damage*1.2);
+}
 
-    damage=Math.floor(damage*1.25);
+if(
+player.name==="将来有望なケンタッキーのチキン" &&
+zone==="砂漠"
+){
+
+    damage=
+    Math.floor(damage*1.15);
+
 }
 
 let critical=false;
@@ -1454,15 +1550,28 @@ if(player.hp <= 0){
 
 let damage=35;
 
+if(
+player.ability==="里帰り" &&
+zone==="草原"
+){
+
+    damage=
+    Math.floor(damage*1.1);
+
+}
+
 if(zone==="浅い海" && player.name==="くうちゃん"){
     damage=Math.floor(damage*1.5);
 }
 
-if(zone==="砂漠" &&
-(player.name==="ブーフコ" ||
- player.name==="将来有望なケンタッキーのチキン")){
+if(
+player.name==="将来有望なケンタッキーのチキン" &&
+zone==="砂漠"
+){
 
-    damage=Math.floor(damage*1.25);
+    damage=
+    Math.floor(damage*1.15);
+
 }
 
 let critical=false;
@@ -1714,6 +1823,27 @@ move4.innerText="まもる";
 
 }
 
+else if(player.name==="リンゴパン"){
+
+    move1.innerText="かじる";
+    move2.innerText="りんごタックル";
+    move3.innerText="アポーアロー";
+    move4.innerText="まもる";
+
+}
+
+ringopan:{
+    name:"リンゴパン",
+    type:"フルーツ",
+    img:"images/ringopan.png",
+    info:"つまみ食いで回復",
+    ability:"つまみ食い",
+    hp:105,
+    atk:20,
+    speed:18,
+    accuracy:100
+},
+
 }
 
 function showSwitchMenu(){
@@ -1742,6 +1872,18 @@ function switchTo(index){
 currentIndex=index;
 
 player=teamData[currentIndex];
+
+if(player.name==="スイカゼリー"){
+
+    zone="雨";
+    zoneTurns=3;
+
+    enemy.speed-=5;
+
+    addLog("水っぽい！");
+    addLog("雨が降り始めた！");
+
+}
 
 drawBattle();
 
