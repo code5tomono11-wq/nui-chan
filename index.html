@@ -32,7 +32,7 @@ h1{
 
 #characterList{
     display:grid;
-    grid-template-columns:repeat(4, 220px);
+    grid-template-columns:repeat(4,240px);
     gap:20px;
     justify-content:center;
     margin-top:30px;
@@ -47,13 +47,18 @@ h1{
 
 
 .charButton{
-    width:220px;
-    height:160px;
     background:#444;
     border:3px solid white;
     color:white;
-    padding:10px;
     cursor:pointer;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    width:240px;
+    height:160px;
 }
 
 .charButton:hover{
@@ -2057,7 +2062,7 @@ socket.on("lose",()=>{
 
 });
 
-function saveGame(){
+function saveGame(){	
 
     localStorage.setItem(
         "nui_levels",
