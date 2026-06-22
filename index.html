@@ -41,17 +41,16 @@ h1{
 }
 
 .charButton img{
-    width:64px !important;
-    height:64px !important;
-
-    max-width:64px;
-    max-height:64px;
+    width:64px;
+    height:64px;
 
     object-fit:contain;
 
+    display:block;
+    margin:0 auto 10px auto;
+
     image-rendering:pixelated;
 }
-
 
 .charButton{
     background:#444;
@@ -61,8 +60,11 @@ h1{
 
     display:flex;
     flex-direction:column;
+
     justify-content:center;
     align-items:center;
+
+    text-align:center;
 
     width:240px;
     height:160px;
