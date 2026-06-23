@@ -181,6 +181,38 @@ img[src="images/mikan.png"]{
 
 </div>
 
+<h2>持ち物選択</h2>
+
+<select id="itemSelect">
+
+<option value="none">なし</option>
+
+<option value="suikaRing">
+スイカの皮のリング
+</option>
+
+<option value="kuuClaw">
+くうちゃんの爪
+</option>
+
+<option value="pomuCotton">
+ポム子の綿
+</option>
+
+<option value="applePiece">
+リンゴパンのかけら
+</option>
+
+<option value="milkChocolate">
+ミルクチョコレート
+</option>
+
+<option value="mikanPeel">
+みかんの皮
+</option>
+
+</select>
+
 <br>
 
 <button onclick="addToTeam()">
@@ -427,7 +459,43 @@ ringopan:{
 },
 
 };
+
+const items = {
+
+none:{
+    name:"なし"
+},
+
+suikaRing:{
+    name:"スイカの皮のリング"
+},
+
+kuuClaw:{
+    name:"くうちゃんの爪"
+},
+
+pomuCotton:{
+    name:"ポム子の綿"
+},
+
+applePiece:{
+    name:"リンゴパンのかけら"
+},
+
+milkChocolate:{
+    name:"ミルクチョコレート"
+},
+
+mikanPeel:{
+    name:"みかんの皮"
+}
+
+};
+
 let current="pomu";
+
+let currentItem="none";
+
 let team=[];
 
 let teamItems=[];
@@ -495,7 +563,13 @@ alert("3体選んでいます");
 return;
 }
 
-team.push(current);
+team.push({
+    char:current,
+    item:
+    document.getElementById(
+    "itemSelect"
+    ).value
+});
 
 drawTeam();
 }
@@ -506,11 +580,12 @@ let html="";
 
 team.forEach(c=>{
 
-html+=
-`<li>${characters[c].name}
- Lv.${levels[c]}</li>`;
-
-});
+html += `
+<li>
+${characters[c.char].name}
+【${items[c.item].name}】
+</li>
+`;
 
 document.getElementById("teamList").innerHTML=
 html;
