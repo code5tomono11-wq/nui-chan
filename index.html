@@ -95,10 +95,31 @@ img[src="images/mikan.png"]{
     font-size:24px;
 }
 
+#zoneBackground{
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background-size:cover;
+    background-position:center;
+
+    opacity:0.25;
+
+    z-index:-1;
+
+}
+
 </style>
 
 </head>
 <body>
+
+<div id="zoneBackground"></div>
 
 <h1>ぬいぐるみチャンピオンズ</h1>
 
@@ -409,6 +430,48 @@ ringopan:{
 let current="pomu";
 let team=[];
 
+let teamItems=[];
+
+const items={
+
+suikaRing:{
+    name:"スイカの皮のリング",
+    atk:0.9,
+    def:1.2
+},
+
+kuuClaw:{
+    name:"くうちゃんの爪",
+    atk:1.2,
+    def:0.9
+},
+
+pomuCotton:{
+    name:"ポム子の綿",
+    def:1.5
+},
+
+applePiece:{
+    name:"リンゴパンのかけら",
+    focusSash:true
+},
+
+milkChocolate:{
+    name:"ミルクチョコレート",
+    only:"kuu",
+    atk:1.25,
+    def:0.95
+},
+
+mikanPeel:{
+    name:"みかんの皮",
+    only:"mikan",
+    atk:0.95,
+    def:1.25
+}
+
+};
+
 function selectChar(id){
 
 current=id;
@@ -554,6 +617,8 @@ if(gameMode==="online"){
 
     player=teamData[0];
     
+player.item="suikaRing";
+
 if(player.name==="スイカゼリー"){
 
     zone="雨";
@@ -781,6 +846,33 @@ addLog("交代ボタンで仲間を交代できる");
 addLog("敵を倒してレベルアップしよう！");
 
 tutorial.battle=true;
+}
+
+if(zone==="雨"){
+
+    document.getElementById(
+    "zoneBackground"
+    ).style.backgroundImage=
+    "url('images/rain.png')";
+
+}
+
+else if(zone==="草原"){
+
+    document.getElementById(
+    "zoneBackground"
+    ).style.backgroundImage=
+    "url('images/grassland.png')";
+
+}
+
+else{
+
+    document.getElementById(
+    "zoneBackground"
+    ).style.backgroundImage=
+    "";
+
 }
 
 }
@@ -1283,6 +1375,20 @@ return;
 
 let damage=enemy.atk;
 
+if(player.item){
+
+    let item=items[player.item];
+
+    if(item.def){
+
+        damage=
+        Math.floor(
+        damage/item.def
+        );
+
+    }
+}
+
 if(
 player.name==="ポム子" &&
 Math.random()<0.2
@@ -1415,6 +1521,25 @@ shieldTurns--;
 
 }
 
+if(
+player.item==="applePiece" &&
+!player.itemUsed &&
+damage>=player.hp
+){
+
+    player.hp=1;
+
+    player.itemUsed=true;
+
+    addLog(
+    "リンゴパンのかけらで耐えた！"
+    );
+
+    drawBattle();
+
+    return;
+}
+
 player.hp-=damage;
 
 if(player.hp<0)
@@ -1464,6 +1589,20 @@ if(player.hp <= 0){
 }
 
 let damage=20;
+
+if(player.item){
+
+    let item=items[player.item];
+
+    if(item.atk){
+
+        damage=
+        Math.floor(
+        damage*item.atk
+        );
+
+    }
+}
 
 if(
 player.ability==="里帰り" &&
@@ -1579,6 +1718,7 @@ return;
 if(gameMode!=="online"){
     enemyTurn();
 }
+
 }
 
 
@@ -1590,6 +1730,20 @@ if(player.hp <= 0){
 }
 
 let damage=35;
+
+if(player.item){
+
+    let item=items[player.item];
+
+    if(item.atk){
+
+        damage=
+        Math.floor(
+        damage*item.atk
+        );
+
+    }
+}
 
 if(
 player.ability==="里帰り" &&
