@@ -547,22 +547,22 @@ drawTeam();
 
 function drawTeam(){
 
-let html="";
+    let html="";
 
-team.forEach(c=>{
+    team.forEach(c=>{
 
-html += `
-<li>
-${characters[c.char].name}
-【${items[c.item].name}】
-</li>
-`;
+        html += `
+        <li>
+        ${characters[c.char].name}
+        【${items[c.item].name}】
+        </li>
+        `;
 
-document.getElementById("teamList").innerHTML=
-html;
+    });
+
+    document.getElementById("teamList").innerHTML = html;
 
 }
-let player;
 
 let enemy;
 
