@@ -114,6 +114,12 @@ img[src="images/mikan.png"]{
 
 }
 
+#battle{
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:cover;
+}
+
 </style>
 
 </head>
@@ -218,6 +224,12 @@ img[src="images/mikan.png"]{
 <button onclick="addToTeam()">
 チームに追加
 </button>
+
+<button onclick="showItemMenu()">
+持ち物を選ぶ
+</button>
+
+<div id="itemMenu"></div>
 
 <div id="team">
 
@@ -497,7 +509,6 @@ let current="pomu";
 let currentItem="none";
 
 let team=[];
-
 let teamItems=[];
 
 function selectChar(id){
@@ -585,6 +596,8 @@ let firstBattle = true;
 
 let enemyAtkDownTurns=0;
 
+let currentItem = "none";
+
 let appleArrowTurns=0;
 
 let zone = "";
@@ -652,6 +665,8 @@ if(gameMode==="online"){
 
     player=teamData[0];
     
+player.item=currentItem;
+
 player.item="suikaRing";
 
 if(player.name==="スイカゼリー"){
@@ -854,6 +869,30 @@ document.getElementById("playerHpBar").style.background=
 
 }
 updateMoves();
+
+let bg = "images/grass.png";
+
+if(zone==="雨"){
+    bg="images/rain.png";
+}
+
+if(zone==="草原"){
+    bg="images/grass.png";
+}
+
+if(zone==="浅い海"){
+    bg="images/sea.png";
+}
+
+if(zone==="砂漠"){
+    bg="images/desert.png";
+}
+
+document.getElementById("battle").style.backgroundImage =
+`url(${bg})`;
+
+document.getElementById("battle").style.backgroundSize =
+"cover";
 
 if(firstBattle){
 
@@ -1410,6 +1449,16 @@ return;
 
 let damage=enemy.atk;
 
+if(player.item==="suikaRing"){
+
+    damage=Math.floor(damage/1.2);
+
+}
+
+if(player.item==="pomuCotton"){
+    damage=Math.floor(damage/1.5);
+}
+
 if(player.item){
 
     let item=items[player.item];
@@ -1575,6 +1624,22 @@ damage>=player.hp
     return;
 }
 
+if(
+player.item==="applePiece" &&
+player.hp===player.maxHp &&
+damage>=player.hp
+){
+
+    player.hp=1;
+    player.item="none";
+
+    addLog("リンゴパンのかけらで耐えた！");
+
+    drawBattle();
+
+    return;
+}
+
 player.hp-=damage;
 
 if(player.hp<0)
@@ -1624,6 +1689,12 @@ if(player.hp <= 0){
 }
 
 let damage=20;
+
+if(player.item==="kuuClaw"){
+
+    damage=Math.floor(damage*1.2);
+
+}
 
 if(player.item){
 
@@ -1765,6 +1836,12 @@ if(player.hp <= 0){
 }
 
 let damage=35;
+
+if(player.item==="kuuClaw"){
+
+    damage=Math.floor(damage*1.2);
+
+}
 
 if(player.item){
 
@@ -2147,6 +2224,45 @@ document.getElementById("switchMenu").innerHTML=html;
 
 }
 
+function showItemMenu(){
+
+let html="<h3>持ち物を選択</h3>";
+
+for(let i=0;i<team.length;i++){
+
+html+="<b>"+characters[team[i]].name+"</b><br>";
+
+for(let key in items){
+
+html+=`
+<button onclick="setItem(${i},'${key}')">
+${items[key].name}
+</button>
+`;
+
+}
+
+html+="<br><br>";
+
+}
+
+document.getElementById("itemMenu").innerHTML=html;
+
+}
+
+function setItem(index,item){
+
+teamItems[index]=item;
+
+addLog(
+characters[team[index]].name+
+" に "+
+items[item].name+
+" を持たせた！"
+);
+
+}
+
 function reviveTo(index){
 
     currentIndex=index;
@@ -2303,6 +2419,10 @@ localStorage.getItem("nui_exp");
 
 if(savedExp){
     exp = JSON.parse(savedExp);
+}
+
+function selectItem(id){
+    currentItem=id;
 }
 
 </script>
