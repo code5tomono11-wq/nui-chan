@@ -564,6 +564,8 @@ function drawTeam(){
 
 }
 
+let player;
+
 let enemy;
 
 let skipTurn=false;
@@ -652,10 +654,13 @@ if(gameMode==="online"){
     currentIndex=0;
     teamData=[];
 
-    team.forEach(c=>{
+team.forEach(c=>{
 
-        let p=
-        JSON.parse(JSON.stringify(characters[c]));
+    let p =
+    JSON.parse(JSON.stringify(characters[c.char]));
+
+    p.item = c.item;
+
 
         p.maxHp=p.hp;
 
@@ -720,7 +725,7 @@ socket.emit("selectTeam",{
         characters[c]
         ));
 
-        let lv=levels[c];
+        let lv=levels[c.char];
 
         p.hp+=(lv-1)*10;
         p.atk+=(lv-1)*3;
@@ -821,7 +826,7 @@ document.getElementById("enemyName").style.color=
 }
 
 document.getElementById("levelText").innerText=
-"レベル "+levels[team[currentIndex]];
+"レベル "+levels[team[currentIndex].char];
 
 }
 
