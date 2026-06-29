@@ -656,9 +656,17 @@ team.forEach(c=>{
 
     let p =
     JSON.parse(
-    JSON.stringify(
-    characters[c.char]
-    ));
+        JSON.stringify(
+            characters[c.char]
+        )
+    );
+
+    p.item = c.item;
+    p.maxHp = p.hp;
+
+    teamData.push(p);
+
+}); 
 
     p.item = c.item;
 
@@ -711,13 +719,21 @@ socket.emit("selectTeam",{
     currentIndex=0;
     teamData=[];
 
-    team.forEach(c=>{
+team.forEach(c=>{
 
-        let p=
-        JSON.parse(
+    let p =
+    JSON.parse(
         JSON.stringify(
-        characters[c]
-        ));
+            characters[c.char]
+        )
+    );
+
+    p.item = c.item;
+    p.maxHp = p.hp;
+
+    teamData.push(p);
+
+});   // ←これが無い！！
 
         let lv=levels[c.char];
 
