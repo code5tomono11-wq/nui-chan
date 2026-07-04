@@ -550,11 +550,11 @@ function drawTeam(){
     team.forEach(c=>{
 
         html += `
-        <li>
-        ${characters[c.char].name}
-        【${items[c.item].name}】
-        </li>
-        `;
+<li>
+${characters[c.char].name}
+【${items[c.item].name}】
+</li>
+`;
 
     });
 
@@ -669,10 +669,6 @@ team.forEach(c=>{
 });
 
 player=teamData[0];    
-
-player.item=currentItem;
-
-player.item="suikaRing";
 
 if(player.name==="スイカゼリー"){
 
