@@ -770,6 +770,10 @@ document.getElementById("log").innerHTML;
 
 function drawBattle(){
 
+    if(player.hp < 0) player.hp = 0;
+
+    if(enemy.hp < 0) enemy.hp = 0;
+
 let playerDisplayName=player.name;
 
 if(playerPoisonTurns>0){
