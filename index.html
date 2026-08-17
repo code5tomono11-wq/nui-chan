@@ -1948,6 +1948,11 @@ specialMove();
 
 function useMove4(){
 
+    if(player.hp <= 0){
+        showReviveMenu();
+        return;
+    }
+
 if(player.name==="くうちゃん"){
 
     zone="浅い海";
@@ -1974,11 +1979,6 @@ if(player.name==="くうちゃん"){
         enemyTurn();
     }
 
-    return;
-}
-
-if(player.hp <= 0){
-    showReviveMenu();
     return;
 }
 
