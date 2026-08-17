@@ -1065,185 +1065,145 @@ drawBattle();
 
 function specialMove(){
 
-if(player.name==="リンゴパン"){
+    if(player.name==="リンゴパン"){
 
-    enemy.hp-=40;
+        enemy.hp -= 40;
+        appleArrowTurns = 3;
 
-    appleArrowTurns=3;
-
-    addLog("アポーアロー！");
-    addLog("40ダメージ！");
-
-}
-
-if(player.name==="ポム子"){
-
-let oldHp=player.hp;
-
-player.maxHp=130;
-player.hp=Math.min(oldHp+30,130);
-player.atk=28;
-player.speed=25;
-
-player.maxHp=130;
-player.hp=Math.min(oldHp+30, player.maxHp);
-player.atk=28;
-
-addLog("ポム子は進化した！");
-
-if(!tutorial.evolve){
-
-addLog("=== 進化説明 ===");
-addLog("ポム子だけ進化できる！");
-addLog("進化後は能力と技が変化する！");
-
-tutorial.evolve=true;
-
-}
-
-updateMoves();
-drawBattle();
-
-return;
-
-}
-
-else if(player.name==="ポム子（帽子あり）"){
-
-let damage=80;
-
-let critical=false;
-
-if(Math.random()<0.25){
-
-damage*=2;
-critical=true;
-
-}
-
-if(Math.random()<0.3){
-
-burnTurns=3;
-addLog("相手はやけどした！");
-
-}
-
-enemy.hp-=damage;
-
-if(enemy.hp<0){
-    enemy.hp=0;
-}
-
-if(enemy.hp<0)
-enemy.hp=0;
-
-addLog("ぼうしミサイル発射！");
-
-if(critical){
-
-addLog("クリティカル！");
-
-}
-
-addLog(damage+"ダメージ！");
-
-drawBattle();
-
-if(enemy.hp<=0){
-
-nextEnemy();
-return;
-
-}
-
-if(gameMode!=="online"){
-    enemyTurn();
-}
-
-return;
-
-}
-
-else if(player.name==="将来有望なケンタッキーのチキン"){
-
-buffTurns=3;
-
-addLog("コケコッコー！3ターン強化！");
-
-drawBattle();
-
-if(gameMode!=="online"){
-    enemyTurn();
-}
-
-return;
-
-}
+        addLog("アポーアロー！");
+        addLog("40ダメージ！");
+    }
 
 else if(player.name==="くうちゃん"){
 
-enemy.hp-=70;
+    enemy.hp -= 70;
 
-socket.emit("move",{
-    room:roomCode,
-    damage:70
-});
+    if(enemy.hp < 0){
+        enemy.hp = 0;
+    }
 
-skipTurn=true;
+    socket.emit("move",{
+        room:roomCode,
+        damage:70
+    });
 
-addLog("おもりキック！次のターン休み！");
+    skipTurn = true;
 
+    addLog("おもりキック！次のターン休み！");
+
+    drawBattle();
+
+    if(enemy.hp <= 0){
+        nextEnemy();
+        return;
+    }
+
+    if(gameMode!=="online"){
+        enemyTurn();
+    }
+
+    return;
 }
+    else if(player.name==="将来有望なケンタッキーのチキン"){
 
-else if(player.name==="スイカゼリー"){
+        buffTurns = 3;
 
-player.hp+=30;
+        addLog("コケコッコー！");
+        addLog("3ターン攻撃力アップ！");
+    }
 
-if(player.hp>player.maxHp)
-player.hp=player.maxHp;
+    else if(player.name==="スイカゼリー"){
 
-enemy.hp-=20;
+        player.hp += 30;
 
-poisonTurns=3;
+        if(player.hp>player.maxHp){
+            player.hp=player.maxHp;
+        }
 
-addLog("殻の雨！相手は毒になった！");
+        enemy.hp -= 20;
 
+        poisonTurns = 3;
+
+        addLog("殻の雨！");
+        addLog("相手は毒になった！");
+    }
+
+    else if(player.name==="セクシーみかん"){
+
+        enemy.accuracy -= 20;
+
+        if(enemy.accuracy<50){
+            enemy.accuracy=50;
+        }
+
+        enemy.speed -= 10;
+
+        if(enemy.speed<1){
+            enemy.speed=1;
+        }
+
+        addLog("セクシーダンス！");
+    }
+
+    else if(player.name==="ブーフコ"){
+
+        enemyAtkDownTurns=3;
+
+        zone="草原";
+        zoneTurns=3;
+
+        addLog("草原になった！");
+    }
+
+    else if(player.name==="ポム子"){
+
+        let oldHp=player.hp;
+
+        player.name="ポム子（帽子あり）";
+        player.maxHp=130;
+        player.hp=Math.min(oldHp+30,130);
+        player.atk=28;
+        player.speed=25;
+
+        addLog("ポム子は進化した！");
+    }
+
+    else if(player.name==="ポム子（帽子あり）"){
+
+        let damage=80;
+
+        if(Math.random()<0.25){
+
+            damage*=2;
+            addLog("クリティカル！");
+        }
+
+        enemy.hp-=damage;
+
+        if(Math.random()<0.3){
+
+            burnTurns=3;
+            addLog("やけど！");
+        }
+
+        addLog("ぼうしミサイル！");
+    }
+
+    if(enemy.hp<0){
+        enemy.hp=0;
+    }
+
+    drawBattle();
+
+    if(enemy.hp<=0){
+        nextEnemy();
+        return;
+    }
+
+    if(gameMode!=="online"){
+        enemyTurn();
+    }
 }
-
-else if(player.name==="セクシーみかん"){
-
-enemy.accuracy -= 20;
-
-if(enemy.accuracy < 50){
-    enemy.accuracy = 50;
-}
-
-enemy.speed -= 10;
-
-if(enemy.speed < 1){
-    enemy.speed = 1;
-}
-
-addLog("セクシーダンス！");
-addLog("相手の命中率と素早さが下がった！");
-}
-
-else if(player.name==="ブーフコ"){
-
-    enemyAtkDownTurns = 3;
-
-    zone="草原";
-    zoneTurns=3;
-
-    addLog("草原になった！");
-}
-
-if(gameMode!=="online"){
-    enemyTurn();
-}
-
-} // ← specialMove終了
-
 function quickAttack(){
 enemy.hp-=10;
 
